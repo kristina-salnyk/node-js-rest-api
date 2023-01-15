@@ -19,10 +19,6 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  if (err.message.includes("Cast to ObjectId failed for value")) {
-    return res.status(404).json({ message: "Not found" });
-  }
-
   if (err.status) {
     return res.status(err.status).json({
       message: err.message,

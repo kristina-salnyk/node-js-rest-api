@@ -17,11 +17,17 @@ const createContact = (fields) => {
 };
 
 const replaceContact = (contactId, fields) => {
-  return Contact.findOneAndReplace({ _id: contactId }, fields, { new: true });
+  return Contact.findOneAndReplace({ _id: contactId }, fields, {
+    new: true,
+    runValidators: true,
+  });
 };
 
 const updateContact = (contactId, fields) => {
-  return Contact.findOneAndUpdate({ _id: contactId }, fields, { new: true });
+  return Contact.findOneAndUpdate({ _id: contactId }, fields, {
+    new: true,
+    unValidators: true,
+  });
 };
 
 module.exports = {

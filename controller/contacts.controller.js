@@ -1,8 +1,8 @@
-const db = require("../db/contacts");
+const service = require("../service/contacts");
 
 const getContacts = async (req, res, next) => {
   try {
-    const contacts = await db.getContacts();
+    const contacts = await service.getContacts();
     res.json(contacts);
   } catch (error) {
     next(error);
@@ -12,7 +12,7 @@ const getContacts = async (req, res, next) => {
 const getContactById = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    const contact = await db.getContactById(contactId);
+    const contact = await service.getContactById(contactId);
 
     if (!contact) {
       return res.status(404).json({ message: "Not found" });
@@ -27,7 +27,7 @@ const getContactById = async (req, res, next) => {
 const createContact = async (req, res, next) => {
   try {
     const { name, email, phone, favorite } = req.body;
-    const contact = await db.createContact({
+    const contact = await service.createContact({
       name,
       email,
       phone,
@@ -43,7 +43,7 @@ const createContact = async (req, res, next) => {
 const removeContact = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    const contact = await db.removeContact(contactId);
+    const contact = await service.removeContact(contactId);
 
     if (!contact) {
       return res.status(404).json({ message: "Not found" });
@@ -59,7 +59,7 @@ const updateContact = async (req, res, next) => {
   try {
     const { contactId } = req.params;
     const { name, email, phone, favorite } = req.body;
-    const contact = await db.replaceContact(contactId, {
+    const contact = await service.replaceContact(contactId, {
       name,
       email,
       phone,
@@ -80,7 +80,7 @@ const updateContactStatus = async (req, res, next) => {
   try {
     const { contactId } = req.params;
     const { favorite } = req.body;
-    const contact = await db.updateContact(contactId, {
+    const contact = await service.updateContact(contactId, {
       favorite,
     });
 
@@ -100,5 +100,5 @@ module.exports = {
   createContact,
   removeContact,
   updateContact,
-  updateContactStatus
+  updateContactStatus,
 };

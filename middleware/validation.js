@@ -1,3 +1,5 @@
+const { isValidObjectId } = require("mongoose");
+
 const validateBody = (schema) => {
   return (req, res, next) => {
     if (Object.keys(req.body).length === 0) {
@@ -12,11 +14,25 @@ const validateBody = (schema) => {
       e.status = 400;
       return next(e);
     }
-      
+
+    return next();
+  };
+};
+
+const validateId = (schema) => {
+  return (req, res, next) => {
+    const { contactId } = req.params;
+    if (!isValidObjectId(contactId)) {
+      const e = new Error(`${contactId} is not correct`);
+      e.status = 400;
+      return next(e);
+    }
+
     return next();
   };
 };
 
 module.exports = {
   validateBody,
+  validateId,
 };
