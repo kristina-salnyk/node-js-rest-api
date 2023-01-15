@@ -2,7 +2,7 @@ const express = require("express");
 const logger = require("morgan");
 const cors = require("cors");
 
-const contactsRouter = require("./api");
+const contactsRouter = require("./routes/api/contacts");
 
 const app = express();
 
@@ -19,6 +19,10 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
+  if (err.message.includes("Cast to ObjectId failed for value")) {
+    return res.status(404).json({ message: "Not found" });
+  }
+
   if (err.status) {
     return res.status(err.status).json({
       message: err.message,
