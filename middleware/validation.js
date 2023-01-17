@@ -1,21 +1,38 @@
-const validateBody = (schema) => {
-    return (req, res, next) => {
-        if (Object.keys(req.body).length === 0) {
-            const e = new Error('Missing fields');
-            e.status = 400;
-            return next(e);
-        }
+const { isValidObjectId } = require("mongoose");
 
-        const { error } = schema.validate(req.body);
-        if (error) {
-            const e = new Error(error.message);
-            e.status = 400;
-            return next(e);
-        }
-        return next();
+const validateBody = (schema) => {
+  return (req, res, next) => {
+    if (Object.keys(req.body).length === 0) {
+      const e = new Error("Missing fields");
+      e.status = 400;
+      return next(e);
     }
-}
+
+    const { error } = schema.validate(req.body);
+    if (error) {
+      const e = new Error(error.message);
+      e.status = 400;
+      return next(e);
+    }
+
+    return next();
+  };
+};
+
+const validateId = (schema) => {
+  return (req, res, next) => {
+    const { contactId } = req.params;
+    if (!isValidObjectId(contactId)) {
+      const e = new Error(`${contactId} is not correct`);
+      e.status = 400;
+      return next(e);
+    }
+
+    return next();
+  };
+};
 
 module.exports = {
-    validateBody
-}
+  validateBody,
+  validateId,
+};
