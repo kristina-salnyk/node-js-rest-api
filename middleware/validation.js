@@ -22,6 +22,7 @@ const validateBody = (schema) => {
 const validateId = (schema) => {
   return (req, res, next) => {
     const { contactId } = req.params;
+
     if (!isValidObjectId(contactId)) {
       const e = new Error(`${contactId} is not correct`);
       e.status = 400;
