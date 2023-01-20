@@ -10,14 +10,15 @@ const params = {
 };
 
 passport.use(
-  new Strategy(params, function (payload, done) {
-    User.findById(payload.id)
-      .then((user) => {
-        if (!user) {
-          return done(new Error("User not found"));
-        }
-        return done(null, user);
-      })
-      .catch((err) => done(err));
+  new Strategy(params, async (payload, done) => {
+    try {
+      const user = await User.findOne({ _id: payload.id });
+      if (!user) {
+        return done(false);
+      }
+      return done(null, user);
+    } catch (error) {
+      done(error);
+    }
   })
 );
