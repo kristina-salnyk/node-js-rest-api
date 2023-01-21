@@ -24,7 +24,6 @@ const register = async (req, res, next) => {
 
     res
       .status(201)
-      // TODO: change to selection of certain fields from db in createUser request
       .json({ user: { email: user.email, subscription: user.subscription } });
   } catch (error) {
     next(error);
@@ -51,16 +50,37 @@ const login = async (req, res, next) => {
 
     const user = await service.updateUser(existUser._id, { token });
 
-    res
-      .status(201)
-      // TODO: change to selection of certain fields from db in updateUser request
-      .json({
-        token: user.token,
-        user: { email: user.email, subscription: user.subscription },
-      });
+    res.status(200).json({
+      token: user.token,
+      user: { email: user.email, subscription: user.subscription },
+    });
   } catch (error) {
     next(error);
   }
 };
 
-module.exports = { register, login };
+const logout = async (req, res, next) => {
+  try {
+    const user = req.user;
+
+    await service.updateUser(user._id, { token: "" });
+
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};
+
+const current = async (req, res, next) => {
+  try {
+    const user = req.user;
+
+    res
+      .status(200)
+      .json({ email: user.email, subscription: user.subscription });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { register, login, logout, current };
