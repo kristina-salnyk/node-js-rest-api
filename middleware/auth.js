@@ -1,6 +1,7 @@
 // const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+const createError = require("http-errors");
 
 const { JWT_SECRET } = process.env;
 
@@ -9,9 +10,7 @@ const auth = async (req, res, next) => {
   const [type, token] = authHeader.split(" ");
 
   if (type !== "Bearer" || !token) {
-    const e = new Error("Not authorized");
-    e.status = 401;
-    return next(e);
+    return next(createError(401, "Not authorized"));
   }
 
   try {
@@ -19,9 +18,7 @@ const auth = async (req, res, next) => {
     const user = await User.findOne({ _id: id });
 
     if (!user || token !== user.token) {
-      const e = new Error("Not authorized");
-      e.status = 401;
-      return next(e);
+      return next(createError(401, "Not authorized"));
     }
 
     req.user = user;
@@ -31,9 +28,7 @@ const auth = async (req, res, next) => {
       error.name === "TokenExpiredError" ||
       error.name === "JsonWebTokenError"
     ) {
-      const e = new Error("Not authorized");
-      e.status = 401;
-      return next(e);
+      return next(createError(401, "Not authorized"));
     }
     next(error);
   }

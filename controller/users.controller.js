@@ -5,8 +5,9 @@ const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = process.env;
 
 const register = async (req, res, next) => {
+  const { email, password, subscription } = req.body;
+
   try {
-    const { email, password, subscription } = req.body;
     const existUser = await service.getUserByEmail(email);
 
     if (existUser) {
@@ -31,8 +32,9 @@ const register = async (req, res, next) => {
 };
 
 const login = async (req, res, next) => {
+  const { email, password } = req.body;
+
   try {
-    const { email, password } = req.body;
     const existUser = await service.getUserByEmail(email);
 
     if (!existUser) {
@@ -60,9 +62,9 @@ const login = async (req, res, next) => {
 };
 
 const logout = async (req, res, next) => {
-  try {
-    const user = req.user;
+  const { user } = req;
 
+  try {
     await service.updateUser(user._id, { token: "" });
 
     res.status(204).send();
@@ -72,9 +74,9 @@ const logout = async (req, res, next) => {
 };
 
 const current = async (req, res, next) => {
-  try {
-    const user = req.user;
+  const { user } = req;
 
+  try {
     res
       .status(200)
       .json({ email: user.email, subscription: user.subscription });
@@ -83,4 +85,23 @@ const current = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login, logout, current };
+const updateUserSubscription = async (req, res, next) => {
+  const { user } = req;
+  const { subscription } = req.body;
+
+  try {
+    const existUser = await service.updateUser(user._id, {
+      subscription,
+    });
+
+    if (!existUser) {
+      return res.status(404).json({ message: "Not found" });
+    }
+
+    res.json(existUser);
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { register, login, logout, current, updateUserSubscription };
