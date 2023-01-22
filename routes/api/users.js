@@ -12,11 +12,11 @@ usersRouter.post(
   usersController.register
 );
 
-usersRouter.post("/login", validateBody(userSchema), usersController.login);
+usersRouter.get("/login", validateBody(userSchema), usersController.login);
 
 usersRouter.post("/logout", auth, usersController.logout);
 
-usersRouter.post("/current", auth, usersController.current);
+usersRouter.get("/current", auth, usersController.current);
 
 usersRouter.patch(
   "/",

@@ -52,7 +52,7 @@ const login = async (req, res, next) => {
 
     const user = await service.updateUser(existUser._id, { token });
 
-    res.status(200).json({
+    res.json({
       token: user.token,
       user: { email: user.email, subscription: user.subscription },
     });
@@ -77,9 +77,7 @@ const current = async (req, res, next) => {
   const { user } = req;
 
   try {
-    res
-      .status(200)
-      .json({ email: user.email, subscription: user.subscription });
+    res.json({ email: user.email, subscription: user.subscription });
   } catch (error) {
     next(error);
   }
@@ -98,7 +96,7 @@ const updateUserSubscription = async (req, res, next) => {
       return res.status(404).json({ message: "Not found" });
     }
 
-    res.json(existUser);
+    res.json({ email: existUser.email, subscription: existUser.subscription });
   } catch (error) {
     next(error);
   }
