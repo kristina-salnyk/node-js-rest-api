@@ -1,8 +1,13 @@
 const service = require("../service/contacts");
 
 const getContacts = async (req, res, next) => {
+  const { user } = req;
+  const { page = 1, limit = 0, favorite } = req.query;
+  const skip = (page - 1) * limit;
+
   try {
-    const contacts = await service.getContacts();
+    const contacts = await service.getContacts(user._id, skip, limit, favorite);
+
     res.json(contacts);
   } catch (error) {
     next(error);
@@ -10,9 +15,11 @@ const getContacts = async (req, res, next) => {
 };
 
 const getContactById = async (req, res, next) => {
+  const { user } = req;
+  const { contactId } = req.params;
+
   try {
-    const { contactId } = req.params;
-    const contact = await service.getContactById(contactId);
+    const contact = await service.getContactById(user._id, contactId);
 
     if (!contact) {
       return res.status(404).json({ message: "Not found" });
@@ -25,9 +32,11 @@ const getContactById = async (req, res, next) => {
 };
 
 const createContact = async (req, res, next) => {
+  const { user } = req;
+  const { name, email, phone, favorite } = req.body;
+
   try {
-    const { name, email, phone, favorite } = req.body;
-    const contact = await service.createContact({
+    const contact = await service.createContact(user._id, {
       name,
       email,
       phone,
@@ -41,9 +50,11 @@ const createContact = async (req, res, next) => {
 };
 
 const removeContact = async (req, res, next) => {
+  const { user } = req;
+  const { contactId } = req.params;
+
   try {
-    const { contactId } = req.params;
-    const contact = await service.removeContact(contactId);
+    const contact = await service.removeContact(user._id, contactId);
 
     if (!contact) {
       return res.status(404).json({ message: "Not found" });
@@ -56,10 +67,12 @@ const removeContact = async (req, res, next) => {
 };
 
 const updateContact = async (req, res, next) => {
+  const { user } = req;
+  const { contactId } = req.params;
+  const { name, email, phone, favorite } = req.body;
+
   try {
-    const { contactId } = req.params;
-    const { name, email, phone, favorite } = req.body;
-    const contact = await service.replaceContact(contactId, {
+    const contact = await service.replaceContact(user._id, contactId, {
       name,
       email,
       phone,
@@ -77,10 +90,12 @@ const updateContact = async (req, res, next) => {
 };
 
 const updateContactStatus = async (req, res, next) => {
+  const { user } = req;
+  const { contactId } = req.params;
+  const { favorite } = req.body;
+
   try {
-    const { contactId } = req.params;
-    const { favorite } = req.body;
-    const contact = await service.updateContact(contactId, {
+    const contact = await service.updateContact(user._id, contactId, {
       favorite,
     });
 

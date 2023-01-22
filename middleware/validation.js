@@ -1,18 +1,15 @@
 const { isValidObjectId } = require("mongoose");
+const createError = require("http-errors");
 
 const validateBody = (schema) => {
   return (req, res, next) => {
     if (Object.keys(req.body).length === 0) {
-      const e = new Error("Missing fields");
-      e.status = 400;
-      return next(e);
+      return next(createError(400, "Missing fields"));
     }
 
     const { error } = schema.validate(req.body);
     if (error) {
-      const e = new Error(error.message);
-      e.status = 400;
-      return next(e);
+      return next(createError(400, error.message));
     }
 
     return next();
@@ -22,10 +19,9 @@ const validateBody = (schema) => {
 const validateId = (schema) => {
   return (req, res, next) => {
     const { contactId } = req.params;
+
     if (!isValidObjectId(contactId)) {
-      const e = new Error(`${contactId} is not correct`);
-      e.status = 400;
-      return next(e);
+      return next(createError(400, `${contactId} is not correct`));
     }
 
     return next();
