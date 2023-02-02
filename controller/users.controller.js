@@ -1,6 +1,10 @@
 const service = require("../service/users");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const gravatar = require("gravatar");
+const path = require("path");
+const fs = require("fs").promises;
+const Jimp = require("jimp");
 
 const { JWT_SECRET } = process.env;
 
@@ -17,10 +21,13 @@ const register = async (req, res, next) => {
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    const avatarURL = gravatar.url(email, { protocol: "http", s: 250 });
+
     const user = await service.createUser({
       email,
       password: hashedPassword,
       subscription,
+      avatarURL,
     });
 
     res
@@ -102,4 +109,46 @@ const updateUserSubscription = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login, logout, current, updateUserSubscription };
+const updateUserAvatar = async (req, res, next) => {
+  const { user } = req;
+  const { filename } = req.file;
+  const {
+    protocol,
+    headers: { host },
+  } = req;
+
+  const uploadPath = path.resolve("./tmp", filename);
+  const publicPath = path.resolve("./public/avatars", filename);
+
+  try {
+    const img = await Jimp.read(uploadPath);
+    img.cover(250, 250).write(publicPath);
+
+    await fs.unlink(uploadPath);
+
+    const existUser = await service.updateUser(user._id, {
+      avatarURL: `/avatars/${path.basename(publicPath)}`,
+    });
+
+    if (!existUser) {
+      return res.status(404).json({ message: "Not found" });
+    }
+
+    const avatarURL = existUser.avatarURL.startsWith("/avatars")
+      ? `${protocol}://${host}${existUser.avatarURL}`
+      : existUser.avatarURL;
+
+    res.json({ avatarURL });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  register,
+  login,
+  logout,
+  current,
+  updateUserSubscription,
+  updateUserAvatar,
+};

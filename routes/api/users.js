@@ -3,8 +3,11 @@ const usersController = require("../../controller/users.controller");
 const { validateBody } = require("../../middleware/validation");
 const { auth } = require("../../middleware/auth");
 const { userSchema, subscriptionSchema } = require("../../schemas/userSchema");
+const avatarsRouter = require("./avatars");
 
 const usersRouter = express.Router();
+
+usersRouter.use("/avatars", avatarsRouter);
 
 usersRouter.post(
   "/register",
