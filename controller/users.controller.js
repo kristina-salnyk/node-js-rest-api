@@ -59,7 +59,7 @@ const login = async (req, res, next) => {
 
     const user = await service.updateUser(existUser._id, { token });
 
-    res.json({
+    res.status(200).json({
       token: user.token,
       user: { email: user.email, subscription: user.subscription },
     });
