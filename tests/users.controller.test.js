@@ -81,7 +81,7 @@ describe("User login tests", () => {
 
   test("should set the error message in response with 401 status code, if the password is invalid", async () => {
     const salt = await bcrypt.genSalt();
-    const mockHashedPassword = await bcrypt.hash("saved_password", salt);
+    const mockHashedPassword = await bcrypt.hash("invalid_password", salt);
 
     jest.spyOn(service, "getUserByEmail").mockImplementationOnce(async () => ({
       _id: mockUser._id,
