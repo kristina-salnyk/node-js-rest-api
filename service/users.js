@@ -15,8 +15,13 @@ const updateUser = (userId, fields) => {
   });
 };
 
+const getUserByVerificationToken = (verificationToken) => {
+  return User.findOne({ verificationToken });
+};
+
 module.exports = {
   getUserByEmail,
   createUser,
   updateUser,
+  getUserByVerificationToken,
 };
