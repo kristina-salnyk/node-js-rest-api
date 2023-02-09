@@ -122,7 +122,7 @@ const updateUserAvatar = async (req, res, next) => {
 
   try {
     const img = await Jimp.read(uploadPath);
-    img.cover(250, 250).write(publicPath);
+    await img.cover(250, 250).writeAsync(publicPath);
 
     await fs.unlink(uploadPath);
 
