@@ -1,15 +1,21 @@
-const service = require("../service/users");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const gravatar = require("gravatar");
 const path = require("path");
 const fs = require("fs").promises;
 const Jimp = require("jimp");
+const { v4: uuidv4 } = require("uuid");
+const service = require("../service/users");
+const { sentVerifyURL } = require("../service/verification");
 
 const { JWT_SECRET } = process.env;
 
 const register = async (req, res, next) => {
   const { email, password, subscription } = req.body;
+  const {
+    protocol,
+    headers: { host },
+  } = req;
 
   try {
     const existUser = await service.getUserByEmail(email);
@@ -23,12 +29,19 @@ const register = async (req, res, next) => {
 
     const avatarURL = gravatar.url(email, { protocol: "http", s: 250 });
 
+    const verificationToken = uuidv4();
+
     const user = await service.createUser({
       email,
       password: hashedPassword,
       subscription,
       avatarURL,
+      verificationToken,
     });
+
+    const verifyURL = `${protocol}://${host}/api/users/verify/${verificationToken}`;
+
+    await sentVerifyURL(email, verifyURL);
 
     res
       .status(201)
@@ -46,6 +59,10 @@ const login = async (req, res, next) => {
 
     if (!existUser) {
       return res.status(401).json({ message: "Email or password is wrong" });
+    }
+
+    if (!existUser.verify) {
+      return res.status(400).json({ message: "Email not verified" });
     }
 
     const isValidPassword = await bcrypt.compare(password, existUser.password);
@@ -72,7 +89,7 @@ const logout = async (req, res, next) => {
   const { user } = req;
 
   try {
-    await service.updateUser(user._id, { token: "" });
+    await service.updateUser(user._id, { token: null });
 
     res.status(204).send();
   } catch (error) {
@@ -144,6 +161,69 @@ const updateUserAvatar = async (req, res, next) => {
   }
 };
 
+const verifyToken = async (req, res, next) => {
+  const { verificationToken } = req.params;
+
+  try {
+    const existUser = await service.getUserByVerificationToken(
+      verificationToken
+    );
+
+    if (!existUser) {
+      return res.status(404).json({ message: "Not found" });
+    }
+
+    await service.updateUser(existUser._id, {
+      verificationToken: null,
+      verify: true,
+    });
+
+    res.status(200).json({
+      message: "Verification successful",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const verifyEmail = async (req, res, next) => {
+  const { email } = req.body;
+  const {
+    protocol,
+    headers: { host },
+  } = req;
+
+  try {
+    const existUser = await service.getUserByEmail(email);
+
+    if (!existUser) {
+      return res.status(404).json({ message: "Not found" });
+    }
+
+    if (existUser.verify) {
+      return res
+        .status(400)
+        .json({ message: "Verification has already been passed" });
+    }
+
+    const verificationToken = uuidv4();
+
+    await service.updateUser(existUser._id, {
+      verificationToken: verificationToken,
+    });
+
+    const verifyURL = `${protocol}://${host}/api/users/verify/${verificationToken}`;
+
+    await sentVerifyURL(email, verifyURL);
+
+    res.status(200).json({
+      message: "Verification email sent",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -151,4 +231,6 @@ module.exports = {
   current,
   updateUserSubscription,
   updateUserAvatar,
+  verifyToken,
+  verifyEmail,
 };
