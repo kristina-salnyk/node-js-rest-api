@@ -1,10 +1,13 @@
 const express = require("express");
 const logger = require("morgan");
 const cors = require("cors");
+const path = require("path");
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger.json");
 
 // USING OF JWT-STRATEGY
 // require("./config/passport");
-
+const authRouter = require("./routes/api/auth");
 const usersRouter = require("./routes/api/users");
 const contactsRouter = require("./routes/api/contacts");
 
@@ -17,6 +20,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/api/auth", authRouter);
+app.use("/api/link", (req, res) => {
+  res.sendFile(path.join(__dirname, "./public/link.html"));
+});
 app.use("/api/users", usersRouter);
 app.use("/api/contacts", contactsRouter);
 
