@@ -61,7 +61,7 @@ const googleRedirect = async (req, res) => {
   });
 
   return res.redirect(
-    `${protocol}://${host}/api/link?email=${userData.data.email}`
+    `${protocol}://${host}/api/link?email=${userData.data.email}` // token instead of email
   );
 };
 

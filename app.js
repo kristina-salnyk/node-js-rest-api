@@ -7,6 +7,7 @@ const swaggerDocument = require("./swagger.json");
 
 // USING OF JWT-STRATEGY
 // require("./config/passport");
+
 const authRouter = require("./routes/api/auth");
 const usersRouter = require("./routes/api/users");
 const contactsRouter = require("./routes/api/contacts");

@@ -11,6 +11,41 @@ const { sentVerifyURL } = require("../service/verification");
 const { JWT_SECRET } = process.env;
 
 const register = async (req, res, next) => {
+  /* 
+    #swagger.tags = ['Auth']
+    #swagger.summary = 'Registration'
+    #swagger.description = 'Creates a new user'
+
+    #swagger.requestBody = {
+      required: true,
+      'content': {
+        'application/json': {
+            schema:{
+              type: "object",
+              properties: {
+                email: {
+                  type: "string"
+                },
+                password: {
+                  type: "string"
+                },
+                subscription: {
+                  type: "string",
+                  enum: ["starter", "pro", "business"]
+                }
+              },
+              required: ["email", "password"]
+            },
+            example:{
+              email: 'Jhon.Doe@example.com',
+              password: 'password_example,
+              subscription: 'pro'
+            }
+        }
+      }
+    }
+  */
+
   const { email, password, subscription } = req.body;
   const {
     protocol,
@@ -52,6 +87,12 @@ const register = async (req, res, next) => {
 };
 
 const login = async (req, res, next) => {
+  /* 
+    #swagger.tags = ['Auth']
+    #swagger.summary = 'Login'
+    #swagger.description = 'Authorizes a registered user'
+  */
+
   const { email, password } = req.body;
 
   try {
@@ -86,6 +127,8 @@ const login = async (req, res, next) => {
 };
 
 const logout = async (req, res, next) => {
+  // #swagger.tags = ['Auth']
+
   const { user } = req;
 
   try {
@@ -98,6 +141,8 @@ const logout = async (req, res, next) => {
 };
 
 const current = async (req, res, next) => {
+  // #swagger.tags = ['Auth']
+
   const { user } = req;
 
   try {
@@ -162,6 +207,12 @@ const updateUserAvatar = async (req, res, next) => {
 };
 
 const verifyToken = async (req, res, next) => {
+  /* 
+    #swagger.tags = ['Auth']
+    #swagger.summary = 'Token verification'
+    #swagger.description = 'Verifies the token'
+  */
+
   const { verificationToken } = req.params;
 
   try {
@@ -187,6 +238,8 @@ const verifyToken = async (req, res, next) => {
 };
 
 const verifyEmail = async (req, res, next) => {
+  // #swagger.tags = ['Auth']
+
   const { email } = req.body;
   const {
     protocol,
